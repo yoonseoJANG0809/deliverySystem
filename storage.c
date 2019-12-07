@@ -52,6 +52,11 @@ static void printStorageInside(int x, int y) {
 //and allocate memory to the context pointer
 //int x, int y : cell coordinate to be initialized
 static void initStorage(int x, int y) {
+	deliverySystem[x][y].building = 0;
+	deliverySystem[x][y].room = 0;
+	deliverySystem[x][y].cnt = 0;
+	strcpy(deliverySystem[x][y].passwd,"");
+	strcpy(deliverySystem[x][y].context,"");
 	
 }
 
@@ -60,6 +65,17 @@ static void initStorage(int x, int y) {
 //return : 0 - password is matching, -1 - password is not matching
 static int inputPasswd(int x, int y) {
 	
+	char passwd[PASSWD_LEN+1];
+	
+	 printf("- input password for (%d, %d) storage : ", x, y);
+
+	 scanf("%4s", &passwd);
+		 
+		 
+		 {
+		 	printf("-----------> password is wrong!!\n-----------> Failed to extract my package!");
+		 }
+		 return 0;
 }
 
 
@@ -72,7 +88,29 @@ static int inputPasswd(int x, int y) {
 //char* filepath : filepath and name to write
 //return : 0 - backup was successfully done, -1 - failed to backup
 int str_backupSystem(char* filepath) {
+	FILE *fp;
 	
+	if((fp = fopen(filepath,"w")) == NULL){
+		fclose(fp);
+		
+		return -1;
+	}
+	
+	fprintf(fp, "%d %d", &systemSize[0], &systemSize[1]);		//save rowsize and columnsize
+	fprintf(fp, "%s", masterPassword);							//save masterpassword
+	
+	int i, j;
+	for(i=0; i<systemSize[0]; i++){
+		for(j=0; j<systemSize[1]; j++){
+			if(deliverySystem[i][j].cnt == 1){
+				fprintf(fp, "%d %d %d %d %s %s\n", i, j, deliverySystem[i][j].building, deliverySystem[i][j].room, deliverySystem[i][j].passwd, deliverySystem[i][j].context);
+			}
+		}
+	}
+	
+	fclose(fp);
+	
+	return 0;
 }
 
 
@@ -81,6 +119,16 @@ int str_backupSystem(char* filepath) {
 //char* filepath : filepath and name to read config parameters (row, column, master password, past contexts of the delivery system
 //return : 0 - successfully created, -1 - failed to create the system
 int str_createSystem(char* filepath) {
+	FILE *fp;
+	
+	if((fp = fopen(filepath, "r")) == NULL){
+		fclose(fp);
+		
+		return -1;
+	}
+		
+	fscanf(fp, "%d %d", &systemSize[0], &systemSize[1]);		//save rowsize and columnsize
+	fscanf(fp, "%s", masterPassword);							//save masterpassword
 	
 }
 
