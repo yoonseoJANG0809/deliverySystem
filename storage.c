@@ -71,10 +71,12 @@ static int inputPasswd(int x, int y) {
 
 	 scanf("%4s", &passwd);
 		 
-		 
-		 {
+	
+	if(strcmp(passwd,deliverySystem[x][y].passwd) != 0)
+		{
 		 	printf("-----------> password is wrong!!\n-----------> Failed to extract my package!");
-		 }
+		 	return -1;
+		}
 		 return 0;
 }
 
@@ -130,6 +132,7 @@ int str_createSystem(char* filepath) {
 	fscanf(fp, "%d %d", &systemSize[0], &systemSize[1]);		//save rowsize and columnsize
 	fscanf(fp, "%s", masterPassword);							//save masterpassword
 	
+	return 0; 
 }
 
 //free the memory of the deliverySystem 
@@ -196,7 +199,13 @@ int str_checkStorage(int x, int y) {
 //char passwd[] : password string (4 characters)
 //return : 0 - successfully put the package, -1 - failed to put
 int str_pushToStorage(int x, int y, int nBuilding, int nRoom, char msg[MAX_MSG_SIZE+1], char passwd[PASSWD_LEN+1]) {
+	deliverySystem[x][y].building = nBuilding;
+	deliverySystem[x][y].room = nRoom;
+	strcpy(deliverySystem[x][y].passwd, passwd);
+	strcpy(deliverySystem[x][y].context, msg);
+	deliverySystem[x][y].cnt = 1;
 	
+	return 0;
 }
 
 
@@ -206,7 +215,19 @@ int str_pushToStorage(int x, int y, int nBuilding, int nRoom, char msg[MAX_MSG_S
 //int x, int y : coordinate of the cell to extract
 //return : 0 - successfully extracted, -1 = failed to extract
 int str_extractStorage(int x, int y) {
+	if(x > systemSize[0] || y < systemSize[1]){
+		return -1;
+	}
 	
+	if(inputPasswd(x, y) != 0){
+		return -1;
+	}
+	
+	printStorageInside(x, y);
+	
+	initStorage(x, y);
+	
+	return 0;
 }
 
 //find my package from the storage
