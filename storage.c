@@ -3,7 +3,6 @@
 #include <string.h>
 #include "storage.h"
 
-
 /* 
   definition of storage cell structure ----
   members :
@@ -52,12 +51,16 @@ static void printStorageInside(int x, int y) {
 //and allocate memory to the context pointer
 //int x, int y : cell coordinate to be initialized
 static void initStorage(int x, int y) {
+	
+	if(deliverySystem[x][y].context == NULL){
+		deliverySystem[x][y].context = (char*) malloc((sizeof(char) * MAX_MSG_SIZE));
+	}
+	
 	deliverySystem[x][y].building = 0;
 	deliverySystem[x][y].room = 0;
 	deliverySystem[x][y].cnt = 0;
-	strcpy(deliverySystem[x][y].passwd,"");
-	strcpy(deliverySystem[x][y].context,"");
-	
+	strcpy(deliverySystem[x][y].passwd, "");
+	strcpy(deliverySystem[x][y].context, "");
 }
 
 //get password input and check if it is correct for the cell (x,y)
@@ -70,6 +73,7 @@ static int inputPasswd(int x, int y) {
 	 printf("- input password for (%d, %d) storage : ", x, y);
 
 	 scanf("%4s", &passwd);
+	 fflush(stdin);
 		 
 	
 	if(strcmp(passwd,deliverySystem[x][y].passwd) != 0)
@@ -98,12 +102,13 @@ int str_backupSystem(char* filepath) {
 		return -1;
 	}
 	
-	fprintf(fp, "%d %d", &systemSize[0], &systemSize[1]);		//save rowsize and columnsize
-	fprintf(fp, "%s", masterPassword);							//save masterpassword
+	fprintf(fp, "%d %d\n", systemSize[0], systemSize[1]);			//save rowsize and columnsize
+	
+	fprintf(fp, "%s\n", masterPassword);							//save masterpassword
 	
 	int i, j;
-	for(i=0; i<systemSize[0]; i++){
-		for(j=0; j<systemSize[1]; j++){
+	for(i = 0; i < systemSize[0]; i++){
+		for(j = 0; j < systemSize[1]; j++){
 			if(deliverySystem[i][j].cnt == 1){
 				fprintf(fp, "%d %d %d %d %s %s\n", i, j, deliverySystem[i][j].building, deliverySystem[i][j].room, deliverySystem[i][j].passwd, deliverySystem[i][j].context);
 			}
@@ -122,6 +127,7 @@ int str_backupSystem(char* filepath) {
 //return : 0 - successfully created, -1 - failed to create the system
 int str_createSystem(char* filepath) {
 	FILE *fp;
+
 	
 	if((fp = fopen(filepath, "r")) == NULL){
 		fclose(fp);
@@ -130,22 +136,45 @@ int str_createSystem(char* filepath) {
 	}
 		
 	fscanf(fp, "%d %d", &systemSize[0], &systemSize[1]);		//save rowsize and columnsize
-	fscanf(fp, "%s", masterPassword);							//save masterpassword
 	
-	deliverySystem = (storage_t**) malloc(sizeof(storage_t) * systemSize[0]);			//allocate memory 
+	fscanf(fp, "%s", &masterPassword);							//save masterpassword
+
+/*	deliverySystem = (storage_t**) malloc( sizeof(storage_t) * systemSize[0]);			//allocate memory 
+
 	int i, j;
-	for(i=0; i < systemSize[1]; i++){
-		deliverySystem = (storage_t**) malloc(sizeof(storage_t) * systemSize[1]);
+	for(i = 0; i < systemSize[0]; i++){
+		deliverySystem[i] = (storage_t*) malloc(sizeof(storage_t) * systemSize[1]);
 	}
 	
 	//Initialize delivery system information
-	for(i=0;i<systemSize[0];i++){
-		for(j=0;j<systemSize[1];j++){
+	for(i = 0; i < systemSize[0]; i++){
+		for(j = 0; j < systemSize[1]; j++){
+			
+			deliverySystem[i][j].context = NULL;
 			initStorage(i, j);
 		}
 	}
+*/	
+	//Save delivery system information
+	int tmpRow;
+	int tmpColumn;
+	int tmpBuilding;
+	int tmpRoom;
+	int tmpCnt;
+	char tmpPasswd[PASSWD_LEN+1];
+	char *tmpContext;
 	
-	return 0; 
+	while(EOF != fscanf(fp, "%d %d %d %d %s %s", &tmpRow, &tmpColumn, &tmpBuilding, &tmpRoom, tmpPasswd, tmpContext)){
+		deliverySystem[tmpRow][tmpColumn].building = tmpBuilding;
+		deliverySystem[tmpRow][tmpColumn].room = tmpRoom;
+		strcpy(deliverySystem[tmpRow][tmpColumn].passwd, tmpPasswd);
+		strcpy(deliverySystem[tmpRow][tmpColumn].context, tmpContext);
+		deliverySystem[tmpRow][tmpColumn].cnt = 1;
+	};
+	
+	fclose(fp);
+	
+	return 0;
 }
 
 //free the memory of the deliverySystem 
@@ -212,6 +241,7 @@ int str_checkStorage(int x, int y) {
 //char passwd[] : password string (4 characters)
 //return : 0 - successfully put the package, -1 - failed to put
 int str_pushToStorage(int x, int y, int nBuilding, int nRoom, char msg[MAX_MSG_SIZE+1], char passwd[PASSWD_LEN+1]) {
+	
 	deliverySystem[x][y].building = nBuilding;
 	deliverySystem[x][y].room = nRoom;
 	strcpy(deliverySystem[x][y].passwd, passwd);
