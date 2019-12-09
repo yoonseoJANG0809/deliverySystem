@@ -132,6 +132,19 @@ int str_createSystem(char* filepath) {
 	fscanf(fp, "%d %d", &systemSize[0], &systemSize[1]);		//save rowsize and columnsize
 	fscanf(fp, "%s", masterPassword);							//save masterpassword
 	
+	deliverySystem = (storage_t**) malloc(sizeof(storage_t) * systemSize[0]);			//allocate memory 
+	int i, j;
+	for(i=0; i < systemSize[1]; i++){
+		deliverySystem = (storage_t**) malloc(sizeof(storage_t) * systemSize[1]);
+	}
+	
+	//Initialize delivery system information
+	for(i=0;i<systemSize[0];i++){
+		for(j=0;j<systemSize[1];j++){
+			initStorage(i, j);
+		}
+	}
+	
 	return 0; 
 }
 
