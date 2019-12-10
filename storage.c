@@ -279,5 +279,14 @@ int str_extractStorage(int x, int y) {
 //return : number of packages that the storage system has
 int str_findStorage(int nBuilding, int nRoom) {
 	int cnt;
+	int i,j;
+	
+	for(i = 0; i < systemSize[0]; i++){
+		for(j = 0; j < systemSize[1]; j++){
+			if(deliverySystem[i][j].building== nBuilding && deliverySystem[i][j].room== nRoom){
+				printf(" -----------> Found a package in (%d, %d)",i, j);
+			}
+		}
+	}	
 	return cnt;
 }
