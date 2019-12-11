@@ -68,11 +68,11 @@ static void initStorage(int x, int y) {
 //return : 0 - password is matching, -1 - password is not matching
 static int inputPasswd(int x, int y) {
 	
-	char passwd[PASSWD_LEN+1];
+	char passwd[PASSWD_LEN+1];										//Save the password you entered password
 	
-	printf("- input password for (%d, %d) storage : ", x, y);
+	printf("- input password for (%d, %d) storage : ", x, y);		//check password
 	
-	scanf("%4s", passwd);
+	scanf("%4s", passwd);											//Password limited to 4 digits
 	fflush(stdin);
 		 
 	
@@ -99,7 +99,7 @@ int str_backupSystem(char* filepath) {
 	if((fp = fopen(filepath,"w")) == NULL){
 		fclose(fp);
 		
-		return -1;
+		return -1;													//Return -1 if no file exists
 	}
 	
 	fprintf(fp, "%d %d\n", systemSize[0], systemSize[1]);			//save rowsize and columnsize
@@ -129,10 +129,10 @@ int str_createSystem(char* filepath) {
 	FILE *fp;
 
 	
-	if((fp = fopen(filepath, "r")) == NULL){
+	if((fp = fopen(filepath, "r")) == NULL){					//open file
 		fclose(fp);
 		
-		return -1;
+		return -1;												//Return -1 if no file exists
 	}
 		
 	fscanf(fp, "%d %d", &systemSize[0], &systemSize[1]);		//save rowsize and columnsize
@@ -154,7 +154,7 @@ int str_createSystem(char* filepath) {
 	for(i = 0; i < systemSize[0]; i++){
 		for(j = 0; j < systemSize[1]; j++){
 			
-			deliverySystem[i][j].context = NULL;
+			deliverySystem[i][j].context = NULL;				//If NULL is set in the "str_createSystem" function, memory allocation is made
 			initStorage(i, j);
 		}
 	}
@@ -171,7 +171,7 @@ int str_createSystem(char* filepath) {
 	char *tmpContext;
 	
 	while (EOF != fscanf(fp, "%d %d %d %d %s %s", &tmpRow, &tmpColumn, &tmpBuilding, &tmpRoom, tmpPasswd, tmpContext)) {
-		printf("row: %d, column: %d, building: %d, room: %d, passwd: %s, context: %s\n", tmpRow, tmpColumn, tmpBuilding, tmpRoom, tmpPasswd, tmpContext);
+		//printf("row: %d, column: %d, building: %d, room: %d, passwd: %s, context: %s\n", tmpRow, tmpColumn, tmpBuilding, tmpRoom, tmpPasswd, tmpContext);
 		
 		deliverySystem[tmpRow][tmpColumn].building = tmpBuilding;
 		deliverySystem[tmpRow][tmpColumn].room = tmpRoom;
@@ -288,13 +288,13 @@ int str_extractStorage(int x, int y) {
 		return -1;
 	}
 	
-	if(inputPasswd(x, y) != 0){
+	if(inputPasswd(x, y) != 0){				//check password
 		return -1;
 	}
 	
-	printStorageInside(x, y);
+	printStorageInside(x, y);				//print inside storage
 	
-	initStorage(x, y);
+	initStorage(x, y);						//initial storage
 	
 	return 0;
 }
