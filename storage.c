@@ -53,7 +53,7 @@ static void printStorageInside(int x, int y) {
 static void initStorage(int x, int y) {
 	
 	if(deliverySystem[x][y].context == NULL){
-		deliverySystem[x][y].context = (char*) malloc((sizeof(char) * MAX_MSG_SIZE));
+		deliverySystem[x][y].context = (char*) malloc(sizeof(char) * MAX_MSG_SIZE);
 	}
 	
 	deliverySystem[x][y].building = 0;
@@ -70,18 +70,18 @@ static int inputPasswd(int x, int y) {
 	
 	char passwd[PASSWD_LEN+1];
 	
-	 printf("- input password for (%d, %d) storage : ", x, y);
-
-	 scanf("%4s", &passwd);
-	 fflush(stdin);
+	printf("- input password for (%d, %d) storage : ", x, y);
+	
+	scanf("%4s", passwd);
+	fflush(stdin);
 		 
 	
 	if(strcmp(passwd,deliverySystem[x][y].passwd) != 0)
-		{
-		 	printf("-----------> password is wrong!!\n-----------> Failed to extract my package!");
-		 	return -1;
-		}
-		 return 0;
+	{
+	 	printf("-----------> password is wrong!!\n-----------> Failed to extract my package!");
+	 	return -1;
+	}
+	 return 0;
 }
 
 
@@ -136,15 +136,19 @@ int str_createSystem(char* filepath) {
 	}
 		
 	fscanf(fp, "%d %d", &systemSize[0], &systemSize[1]);		//save rowsize and columnsize
+	//printf("Row SIZE is %d , Column SIZE is %d\n", systemSize[0], systemSize[1]);
 	
-	fscanf(fp, "%s", &masterPassword);							//save masterpassword
+	fscanf(fp, "%s", masterPassword);							//save masterpassword
+	//printf("Masterpassword is %s\n", masterPassword);
 
-/*	deliverySystem = (storage_t**) malloc( sizeof(storage_t) * systemSize[0]);			//allocate memory 
-
+	//memory allocation
+	deliverySystem = (storage_t**) malloc( sizeof(storage_t) * systemSize[0]);			//allocate memory 
+	//printf("rowsize\n");
 	int i, j;
 	for(i = 0; i < systemSize[0]; i++){
 		deliverySystem[i] = (storage_t*) malloc(sizeof(storage_t) * systemSize[1]);
 	}
+	//printf("columnsize\n");
 	
 	//Initialize delivery system information
 	for(i = 0; i < systemSize[0]; i++){
@@ -154,7 +158,8 @@ int str_createSystem(char* filepath) {
 			initStorage(i, j);
 		}
 	}
-*/	
+	//printf("initial");
+	
 	//Save delivery system information
 	int tmpRow;
 	int tmpColumn;
@@ -162,16 +167,19 @@ int str_createSystem(char* filepath) {
 	int tmpRoom;
 	int tmpCnt;
 	char tmpPasswd[PASSWD_LEN+1];
+	
 	char *tmpContext;
 	
-	while(EOF != fscanf(fp, "%d %d %d %d %s %s", &tmpRow, &tmpColumn, &tmpBuilding, &tmpRoom, tmpPasswd, tmpContext)){
+	while (EOF != fscanf(fp, "%d %d %d %d %s %s", &tmpRow, &tmpColumn, &tmpBuilding, &tmpRoom, tmpPasswd, tmpContext)) {
+		printf("row: %d, column: %d, building: %d, room: %d, passwd: %s, context: %s\n", tmpRow, tmpColumn, tmpBuilding, tmpRoom, tmpPasswd, tmpContext);
+		
 		deliverySystem[tmpRow][tmpColumn].building = tmpBuilding;
 		deliverySystem[tmpRow][tmpColumn].room = tmpRoom;
 		strcpy(deliverySystem[tmpRow][tmpColumn].passwd, tmpPasswd);
 		strcpy(deliverySystem[tmpRow][tmpColumn].context, tmpContext);
 		deliverySystem[tmpRow][tmpColumn].cnt = 1;
 	};
-	
+
 	fclose(fp);
 	
 	return 0;
@@ -256,6 +264,10 @@ int str_checkStorage(int x, int y) {
 //return : 0 - successfully put the package, -1 - failed to put
 int str_pushToStorage(int x, int y, int nBuilding, int nRoom, char msg[MAX_MSG_SIZE+1], char passwd[PASSWD_LEN+1]) {
 	
+	if(x > systemSize[0] || y > systemSize[1]){
+		return -1;
+	}
+	
 	deliverySystem[x][y].building = nBuilding;
 	deliverySystem[x][y].room = nRoom;
 	strcpy(deliverySystem[x][y].passwd, passwd);
@@ -272,7 +284,7 @@ int str_pushToStorage(int x, int y, int nBuilding, int nRoom, char msg[MAX_MSG_S
 //int x, int y : coordinate of the cell to extract
 //return : 0 - successfully extracted, -1 = failed to extract
 int str_extractStorage(int x, int y) {
-	if(x > systemSize[0] || y < systemSize[1]){
+	if(x > systemSize[0] || y > systemSize[1]){
 		return -1;
 	}
 	
@@ -295,9 +307,11 @@ int str_findStorage(int nBuilding, int nRoom) {
 	int cnt;
 	int i,j;
 	
+	cnt = 0;
 	for(i = 0; i < systemSize[0]; i++){
 		for(j = 0; j < systemSize[1]; j++){
 			if(deliverySystem[i][j].building== nBuilding && deliverySystem[i][j].room== nRoom){
+				cnt++;
 				printf(" -----------> Found a package in (%d, %d)",i, j);
 			}
 		}
